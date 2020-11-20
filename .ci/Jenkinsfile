@@ -2,7 +2,9 @@
 
 try {
 	wafDefaultPipeline(projects: ["tools-slurm"],
-	                   container: [app: "dev-tools"],
+	                   container: [app            : "dev-tools",
+	                               singularityArgs: "-B /run/nscd " +
+	                                                "-B /run/munge"],
 	                   enableClangFormat: false,
 	                   notificationChannel: "#jenkins-trashbin")
 
@@ -10,8 +12,7 @@ try {
 	conditionalStage(name: "Module Deployment", skip: !deploy) {
 		runOnSlave(label: "frontend") {
 			inSingularity(app: "dev-tools") {
-				// Nothing to deploy yet, add 'bin/', 'lib/', ... to 'source' if appropriate
-				deployModule([name: "tools-slurm", source: "repos_log.txt"])
+				deployModule([name: "tools-slurm", source: "bin/ repos_log.txt"])
 			}
 		}
 	}
