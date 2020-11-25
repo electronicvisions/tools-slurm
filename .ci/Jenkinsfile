@@ -3,6 +3,7 @@
 try {
 	wafDefaultPipeline(projects: ["tools-slurm"],
 	                   container: [app: "dev-tools"],
+	                   enableClangFormat: false,
 	                   notificationChannel: "#jenkins-trashbin")
 
 	boolean deploy = env.GERRIT_EVENT_TYPE == "change-merged"
