@@ -1,6 +1,8 @@
 #!/bin/bash
+set -euo pipefail
+shopt -s inherit_errexit
 
 IFS=$'\n'
 for jobinfo in $(scontrol show -o job); do
-	echo $jobinfo | grep -o --color=never "\(JobId\|JobState\|UserId\|Licenses\|SubmitTime\|StartTime\)=[^[:space:]]*" | grep -v "[^=]\+=Unknown" | xargs | grep -v "^$" | grep -v "Licenses=\($\|(null)\)" | grep -v "JobState=\(FAILED\|COMPLETED\|CANCELLED\)" 
+	echo $jobinfo | grep -o --color=never "\(JobId\|JobState\|UserId\|Licenses\|SubmitTime\|StartTime\)=[^[:space:]]*" | grep -v "[^=]\+=Unknown" | xargs | grep -v "^$" | grep -v "Licenses=\($\|(null)\)" | grep -v "JobState=\(FAILED\|COMPLETED\|CANCELLED\)" || true
 done
