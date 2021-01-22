@@ -2,7 +2,8 @@
 
 try {
 	wafDefaultPipeline(projects: ["tools-slurm"],
-	                   container: [app            : "dev-tools",
+	                   moduleOptions: [modules: ["slurm-singularity"]],
+	                   container: [app            : "dls",
 	                               singularityArgs: "-B /run/nscd " +
 	                                                "-B /run/munge"],
 	                   enableClangFormat: false,
