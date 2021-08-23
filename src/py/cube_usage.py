@@ -31,6 +31,9 @@ def get_jobs(start: dt.datetime) -> dict:
     for line in result.stdout.splitlines():
         line = line.split("|")
         cube_license = line[3].split(",")[2][8:-2]
+        state = line[2]
+        if state == "PENDING":
+            continue
         user = line[4]
         start = dt.datetime.strptime(line[0], datefmt)
         try:
