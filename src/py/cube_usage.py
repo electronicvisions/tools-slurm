@@ -94,12 +94,13 @@ def generate_output(licenses, n_hours, start, binwidth):
             mean_duration = "-"
             usage = 0
         act = generate_bars(data, n_hours, start, binwidth)
-        lines.append(f"{cube_license:>5}  "
+        lines.append(f"{cube_license:>7}  "
                      f"{len(data):4d} "
                      f"{mean_duration:>16}   "
                      f"{usage:>4.0%}  "
                      f"{act}")
-    lines.sort(key=lambda x: int(x.split()[0][1:-2]), reverse=True)
+    lines.sort(key=lambda x: int(''.join(filter(str.isdigit, x.split()[0]))),
+               reverse=True)
     return lines
 
 
@@ -109,7 +110,7 @@ def generate_figure(licenses, begin, path):
     import matplotlib.pyplot as plt
 
     cubes = list(licenses.keys())
-    cubes.sort(key=lambda x: int(x[1:-2]))
+    cubes.sort(key=lambda x: int(''.join(filter(str.isdigit, x.split()[0]))))
     fig, ax = plt.subplots()
 
     for cube_license, data in licenses.items():
