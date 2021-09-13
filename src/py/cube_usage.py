@@ -136,7 +136,7 @@ def main(n_hours, binwidth, figure):
     licenses = get_jobs(start)
     lines = generate_output(licenses, n_hours, start, binwidth)
     print(f"Overview for last {n_hours} hours")
-    print(f"SETUP  JOBS    MEAN DURATION  USAGE  {start:%d. %Hh}"
+    print(f"  SETUP  JOBS    MEAN DURATION  USAGE  {start:%d. %Hh}"
           f"{' ':{abs(n_hours // binwidth - 12)}}"
           f"{dt.datetime.now():%d. %Hh}")
     print("\n".join(lines))
