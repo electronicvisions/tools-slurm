@@ -25,7 +25,7 @@ def get_slurm_entity(entity: str, conditions: Optional[List[str]] = None
     """
     if conditions is None:
         conditions = list()
-    result = subprocess.run(f"scontrol show -o {entity}", shell=True,
+    result = subprocess.run(f"scontrol show -oa {entity}", shell=True,
                             check=True, capture_output=True, text=True)
     return list(
         dict(x.split('=', 1) for x in line.split() if '=' in x)
