@@ -64,8 +64,8 @@ def get_chip_licenses(chip_revision: Optional[Integral] = None) -> List[str]:
             except KeyError:
                 # fpga has no chip
                 continue
-            cube_chips[revision].append(
-                f"W{cube_entry['hxcube_id']}F{fpga['fpga']}")
+            wafer_id = cube_entry['hxcube_id'] + 60
+            cube_chips[revision].append(f"W{wafer_id}F{fpga['fpga']}")
     if chip_revision is None:
         chip_revision = max(cube_chips)
     return cube_chips[chip_revision]
