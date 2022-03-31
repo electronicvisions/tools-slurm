@@ -9,6 +9,7 @@ from collections import defaultdict
 from numbers import Integral
 import random
 import subprocess
+import sys
 from typing import Dict, List, Optional
 import yaml
 
@@ -93,7 +94,8 @@ def get_parser():
     Returns the argument parser for this script.
     """
     parser = argparse.ArgumentParser(
-        description='Shows available BSS-2 chips.')
+        description='Shows available BSS-2 chips. Exit code is 0 on success, '
+                    '2 if no chips are available and 1 in fail case')
     parser.add_argument('--chip-revision', type=int, default=None,
                         help='specify chip revision (defaults to latest)')
     parser.add_argument('--random', action='store_true',
@@ -108,8 +110,12 @@ def main(args):
     reservation_licenses = get_licenses(reservations)
     chips = filter(lambda license: license not in reservation_licenses,
                    get_idle_chips(args.chip_revision))
+    chips = list(chips)
+    if len(chips) == 0:
+        print("There is no free chip available", file=sys.stderr)
+        sys.exit(2)
     if args.random:
-        chips = random.choices(list(chips), k=1)
+        chips = random.choices(chips, k=1)
     for chip_license in chips:
         if args.srun_args:
             print(chip_license.replace(
