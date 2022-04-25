@@ -4,7 +4,7 @@ import contextlib
 import io
 import unittest
 from find_free_chip import main, get_chip_licenses, get_slurm_entity, \
-    get_parser
+    get_parser, CHIP_REVISION_DEFAULT
 
 
 CHIP_LICENSE_REGEX = r"W[0-9]+F[0-9]+"
@@ -14,7 +14,7 @@ CHIP_SRUN_ARGS_REGEX = r"--wafer=[0-9]+\ --fpga-without-aout=[0-9]+"
 class TestFindFreeChip(unittest.TestCase):
 
     def test_get_chip_licenses(self):
-        chips = get_chip_licenses()
+        chips = get_chip_licenses(CHIP_REVISION_DEFAULT)
         self.assertGreater(len(chips), 0)
         self.assertRegex(chips[0], CHIP_LICENSE_REGEX)
 

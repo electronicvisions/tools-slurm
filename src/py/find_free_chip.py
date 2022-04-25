@@ -14,6 +14,11 @@ from typing import Dict, List, Optional
 import yaml
 
 
+# used here and in tests/py/test_find_free_chip.py to specify the default for
+# the chip revision
+CHIP_REVISION_DEFAULT = 2
+
+
 def get_slurm_entity(entity: str, conditions: Optional[List[str]] = None
                      ) -> List[Dict[str, str]]:
     """
@@ -46,7 +51,7 @@ def get_licenses(slurm_entity: List[Dict[str, str]]) -> List[str]:
     return out
 
 
-def get_chip_licenses(chip_revision: Optional[Integral] = None) -> List[str]:
+def get_chip_licenses(chip_revision: Integral) -> List[str]:
     """
     Returns license strings of all chips of given revision (defaults to the
     latest chip revision).
@@ -67,8 +72,6 @@ def get_chip_licenses(chip_revision: Optional[Integral] = None) -> List[str]:
                 continue
             wafer_id = cube_entry['hxcube_id'] + 60
             cube_chips[revision].append(f"W{wafer_id}F{fpga['fpga']}")
-    if chip_revision is None:
-        chip_revision = max(cube_chips)
     return cube_chips[chip_revision]
 
 
@@ -96,8 +99,9 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Shows available BSS-2 chips. Exit code is 0 on success, '
                     '2 if no chips are available and 1 in fail case')
-    parser.add_argument('--chip-revision', type=int, default=None,
-                        help='specify chip revision (defaults to latest)')
+    parser.add_argument(
+        '--chip-revision', type=int, default=CHIP_REVISION_DEFAULT,
+        help=f'specify chip revision (defaults to {CHIP_REVISION_DEFAULT})')
     parser.add_argument('--random', action='store_true',
                         help='get a single random chip')
     parser.add_argument('--srun-args', action='store_true',
