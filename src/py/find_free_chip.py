@@ -16,7 +16,7 @@ import yaml
 
 # used here and in tests/py/test_find_free_chip.py to specify the default for
 # the chip revision
-CHIP_REVISION_DEFAULT = 2
+CHIP_REVISION_DEFAULT = 3
 
 
 def get_slurm_entity(entity: str, conditions: Optional[List[str]] = None
