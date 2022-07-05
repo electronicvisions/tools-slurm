@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -euo pipefail
+
+for SERVICE_NAME in $(systemctl list-units | grep quiggeldy@ | awk '{print $1;}'); do
+	PORT=`systemctl status $SERVICE_NAME | grep socat | awk '{print $4}' | awk -F: '{print $3}'`
+	echo $SERVICE_NAME
+	echo -e "export QUIGGELDY_IP=$(hostname); export QUIGGELDY_PORT=$PORT; export QUIGGELDY_USER_NO_MUNGE=$USER; export QUIGGELDY_ENABLED=1\n"
+done
