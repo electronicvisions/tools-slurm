@@ -112,6 +112,9 @@ def get_parser():
 def main(args):
     reservations = get_slurm_entity("reservations", ["State=ACTIVE"])
     reservation_licenses = get_licenses(reservations)
+    # manually block Jenkins test setups. The can be in undefined state, but
+    # we don't want to put them in a reservation so people can debug faster.
+    reservation_licenses.extend(['W62F0', 'W62F3'])
     chips = filter(lambda license: license not in reservation_licenses,
                    get_idle_chips(args.chip_revision))
     chips = list(chips)
