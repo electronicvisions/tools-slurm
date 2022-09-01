@@ -3,8 +3,9 @@
 import contextlib
 import io
 import unittest
-from find_free_chip import main, get_chip_licenses, get_slurm_entity, \
-    get_parser, CHIP_REVISION_DEFAULT, ExitCode
+from tools_slurm.scripts.find_free_chip import main, get_parser, \
+    CHIP_REVISION_DEFAULT, ExitCode
+from tools_slurm.helpers import get_chip_licenses, get_slurm_entity
 
 
 CHIP_LICENSE_REGEX = r"W[0-9]+F[0-9]+"

@@ -35,11 +35,22 @@ def build(bld):
         use="tools-slurm_shellscripts",
         test_environ=dict(WAF_TOPLEVEL=get_toplevel_path()))
 
+    bld(name="tools-slurm_python_lib",
+        features="use py pylint pycodestyle",
+        source=bld.path.ant_glob("src/py/tools_slurm/**/*.py"),
+        pylint_config=join(get_toplevel_path(), "code-format", "pylintrc"),
+        pycodestyle_config=join(get_toplevel_path(), "code-format", "pycodestyle"),
+        relative_trick=True,
+        install_from="src/py",
+        install_path="${PREFIX}/lib",
+        )
+
     bld(name='tools-slurm_pythonscripts',
         features='use py pylint pycodestyle',
-        source=bld.path.ant_glob('src/py/**/*.py'),
+        use='tools-slurm_python_lib',
+        source=bld.path.ant_glob('src/py/tools_slurm/scripts/**/*.py'),
         relative_trick=True,
-        install_from='src/py',
+        install_from='src/py/tools_slurm/scripts',
         install_path='${PREFIX}/bin',
         chmod=Utils.O755,
         pylint_config=join(get_toplevel_path(), "code-format", "pylintrc"),
@@ -49,7 +60,7 @@ def build(bld):
     bld(name="tools-slurm_pythonscripts_tests",
         tests=bld.path.ant_glob("tests/py/**/*.py"),
         features='use pytest pylint pycodestyle',
-        use="tools-slurm_pythonscripts",
+        use="tools-slurm_python_lib tools-slurm_pythonscripts",
         pylint_config=join(get_toplevel_path(), "code-format", "pylintrc"),
         pycodestyle_config=join(get_toplevel_path(), "code-format", "pycodestyle"),
         )
