@@ -30,7 +30,7 @@ def get_slurm_entity(entity: str, conditions: Optional[List[str]] = None
                       returns all running jobs for setup W62F3.
     """
     if conditions is None:
-        conditions = list()
+        conditions = []
     result = subprocess.run(f"scontrol show -oa {entity}", shell=True,
                             check=True, capture_output=True, text=True)
     return list(
@@ -58,7 +58,8 @@ def get_chip_licenses(chip_revision: Integral) -> List[str]:
     """
     # include frankenstein in the future?
 
-    with open("/wang/data/bss-hwdb/db.yaml", mode="r") as db_file:
+    with open("/wang/data/bss-hwdb/db.yaml", mode="r",
+              encoding="utf-8") as db_file:
         database = db_file.read().split('---')
     cube_entries = map(yaml.safe_load,
                        filter(lambda x: 'hxcube_id' in x, database))

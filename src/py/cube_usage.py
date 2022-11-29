@@ -42,7 +42,7 @@ def get_jobs(start: dt.datetime) -> dict:
             end = dt.datetime.now()
 
         job = (start, end, user)
-        if cube_license not in licenses.keys():
+        if cube_license not in licenses:
             licenses[cube_license] = [job]
         else:
             licenses[cube_license].append(job)
@@ -89,7 +89,7 @@ def generate_output(licenses, n_hours, start, binwidth):
             # job may have started before n_hours ago
             usage = min(1, sum(durations, dt.timedelta(0))
                         / dt.timedelta(hours=n_hours))
-            mean_duration = str(mean_duration).split(".")[0]
+            mean_duration = str(mean_duration).split('.', maxsplit=1)[0]
         else:
             mean_duration = "-"
             usage = 0
