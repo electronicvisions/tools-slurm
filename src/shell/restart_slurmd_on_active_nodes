@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+for node in $(scontrol show  node  | awk -v RS="" '!($0 ~ /State=DOWN/) { split($1, name, "="); print name[2]  }'); do
+    echo -n "Restarting ${node}... "
+    ssh ${node} -l root systemctl daemon-reload
+    ssh ${node} -l root systemctl restart slurmd@skretch
+    echo "done"
+done
