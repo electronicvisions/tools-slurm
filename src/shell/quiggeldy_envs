@@ -24,7 +24,8 @@ for SERVICE_NAME in $(systemctl list-units | grep quiggeldy@ | awk '{print $1;}'
 	SHORTNAME=${SERVICE_NAME:10}
 	SHORTNAME=${SHORTNAME::-8}
 	if [[ $# -eq 0 ]] || [[ $SHORTNAME == "$1" ]]; then
-		PORT=$(systemctl status "$SERVICE_NAME" | grep socat | awk '{print $4}' | awk -F: '{print $3}')
+		PORT=$(systemctl status "$SERVICE_NAME" | grep -m 1 tcp)
+		PORT=${PORT#*Host??}
 		if [[ $# -eq 0 ]]; then
 			echo -e "\n$SHORTNAME"
 		fi
