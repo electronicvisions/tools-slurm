@@ -6,6 +6,7 @@ Show available BSS-2 chips.
 
 import argparse
 from collections import defaultdict
+from enum import Enum
 from numbers import Integral
 import random
 import subprocess
@@ -17,6 +18,10 @@ import yaml
 # used here and in tests/py/test_find_free_chip.py to specify the default for
 # the chip revision
 CHIP_REVISION_DEFAULT = 3
+
+
+class ExitCode(Enum):
+    NO_FREE_CHIP = 2
 
 
 def get_slurm_entity(entity: str, conditions: Optional[List[str]] = None
@@ -121,7 +126,7 @@ def main(args):
     chips = list(chips)
     if len(chips) == 0:
         print("There is no free chip available", file=sys.stderr)
-        sys.exit(2)
+        sys.exit(ExitCode.NO_FREE_CHIP.value)
     if args.random:
         chips = random.choices(chips, k=1)
     for chip_license in chips:

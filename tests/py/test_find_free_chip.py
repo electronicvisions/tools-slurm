@@ -4,7 +4,7 @@ import contextlib
 import io
 import unittest
 from find_free_chip import main, get_chip_licenses, get_slurm_entity, \
-    get_parser, CHIP_REVISION_DEFAULT
+    get_parser, CHIP_REVISION_DEFAULT, ExitCode
 
 
 CHIP_LICENSE_REGEX = r"W[0-9]+F[0-9]+"
@@ -36,7 +36,11 @@ class TestFindFreeChip(unittest.TestCase):
 
         stdout_string = io.StringIO()
         with contextlib.redirect_stdout(stdout_string):
-            main(parser.parse_args(["--random"]))
+            try:
+                main(parser.parse_args(["--random"]))
+            except SystemExit as exit_exception:
+                if ExitCode(exit_exception.code) is ExitCode.NO_FREE_CHIP:
+                    unittest.skip("No free chips found, cannot test output.")
         lines = stdout_string.getvalue().splitlines()
         self.assertLessEqual(len(lines), 1)
         if lines:
@@ -44,7 +48,11 @@ class TestFindFreeChip(unittest.TestCase):
 
         stdout_string = io.StringIO()
         with contextlib.redirect_stdout(stdout_string):
-            main(parser.parse_args(["--srun-args"]))
+            try:
+                main(parser.parse_args(["--srun-args"]))
+            except SystemExit as exit_exception:
+                if ExitCode(exit_exception.code) is ExitCode.NO_FREE_CHIP:
+                    unittest.skip("No free chips found, cannot test output.")
         lines = stdout_string.getvalue().splitlines()
         if lines:
             self.assertRegex(lines[0], CHIP_SRUN_ARGS_REGEX)
