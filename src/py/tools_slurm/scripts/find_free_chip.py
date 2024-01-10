@@ -33,21 +33,12 @@ def get_parser():
                         help='get a single random chip')
     parser.add_argument('--srun-args', action='store_true',
                         help='return srun arguments instead of license')
-    parser.add_argument('--user', type=str,
-                        help='add reservations where the provided user is '
-                             'included to the search')
     return parser
 
 
 def main(args):
     reservations = get_slurm_entity("reservations", ["State=ACTIVE"])
-    if args.user is not None:
-        reservation_licenses = []
-        for reservation in reservations:
-            if args.user not in reservation['Users'].split(','):
-                reservation_licenses.extend(get_licenses([reservation]))
-    else:
-        reservation_licenses = get_licenses(reservations)
+    reservation_licenses = get_licenses(reservations)
     # manually block Jenkins test setups. The can be in undefined state, but
     # we don't want to put them in a reservation so people can debug faster.
     reservation_licenses.extend(['W62F0', 'W62F3'])
