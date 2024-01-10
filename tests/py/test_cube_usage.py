@@ -4,8 +4,7 @@ import unittest
 import tempfile
 import os
 import datetime
-from tools_slurm.scripts.cube_usage import main, generate_output, get_jobs, \
-    generate_figure
+from cube_usage import main, generate_output, get_jobs, generate_figure
 
 
 class TestCubeUsage(unittest.TestCase):
