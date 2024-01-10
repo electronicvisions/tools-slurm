@@ -13,7 +13,7 @@ try {
 	conditionalStage(name: "Module Deployment", skip: !deploy) {
 		runOnSlave(label: "frontend") {
 			inSingularity(app: "dev-tools") {
-				deployModule([name: "tools-slurm", source: "bin/ repos_log.txt"])
+				deployModule([name: "tools-slurm", source: "bin/ lib/ repos_log.txt"])
 			}
 		}
 	}
