@@ -23,9 +23,8 @@ def get_parser():
     Returns the argument parser for this script.
     """
     parser = argparse.ArgumentParser(
-        description=f'Shows available BSS-2 chips. Exit code is 0 on success, '
-                    f'{ExitCode.NO_FREE_CHIP.value} if no chips are available '
-                    f'and 1 in fail case')
+        description='Shows available BSS-2 chips. Exit code is 0 on success, '
+                    '2 if no chips are available and 1 in fail case')
     parser.add_argument(
         '--chip-revision', type=int, default=CHIP_REVISION_DEFAULT,
         help=f'specify chip revision (defaults to {CHIP_REVISION_DEFAULT})')
