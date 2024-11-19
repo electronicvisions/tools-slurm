@@ -4,14 +4,23 @@
 Show usage of cube setups over given time period.
 """
 
+from typing import Dict, List, Tuple
 import argparse
 import os
 import subprocess
 import datetime as dt
 
 
-def get_jobs(start: dt.datetime) -> dict:
-    """ query slurm database for jobs since start """
+def get_jobs(start: dt.datetime
+             ) -> Dict[str, List[Tuple[dt.datetime, dt.datetime, str]]]:
+    """
+    Query slurm database for jobs since start time.
+
+    :param start: Start time for which to query.
+    :return: Dictionary with extracted jobs. Each key represents a license.
+        The values are lists with the extracted jobs. For each job the start
+        time, end time and the user are given.
+    """
     datefmt = "%Y-%m-%dT%H:%M:%S"
     cmd = ("sacct -a -r cube --start {:%Y-%m-%dT%H:%M:%S} "
            "--format=start,end,state,alloctres%100,user --parsable2 "
@@ -27,7 +36,7 @@ def get_jobs(start: dt.datetime) -> dict:
     result = subprocess.run(cmd.format(start), shell=True, check=True,
                             capture_output=True, text=True)
 
-    licenses = {}
+    jobs = {}
     for line in result.stdout.splitlines():
         line = line.split("|")
         cube_license = line[3].split(",")[2][8:-2]
@@ -42,15 +51,22 @@ def get_jobs(start: dt.datetime) -> dict:
             end = dt.datetime.now()
 
         job = (start, end, user)
-        if cube_license not in licenses:
-            licenses[cube_license] = [job]
+        if cube_license not in jobs:
+            jobs[cube_license] = [job]
         else:
-            licenses[cube_license].append(job)
-    return licenses
+            jobs[cube_license].append(job)
+    return jobs
 
 
 def generate_bars(data, n_hours, begin, binwidth):
-    """ draw bars for how long cube was used in each hour """
+    """
+    Draw bars for how long resource was used in each bin.
+
+    :param data: Jobs run on this resource.
+    :param n_hours: Number of hours to look back in time.
+    :param binwidth: Width of a time bin in hours.
+    :param figure: Generate and save figure.
+    """
     barchars = " ▁▂▃▄▅▆▇█"
     activity = [dt.timedelta(0)] * (n_hours + 1)
     for start, stop, _ in data:
@@ -79,10 +95,22 @@ def generate_bars(data, n_hours, begin, binwidth):
     return "│" + "".join(bars) + "│"
 
 
-def generate_output(licenses, n_hours, start, binwidth):
-    """ generate str line with stats for each cube in licenses """
+def generate_output(jobs,
+                    n_hours: int,
+                    start: dt.datetime,
+                    binwidth: int):
+    """
+    Generate str line with stats for each resource.
+
+    :param jobs: Dictionary with extracted jobs. Each key represents a
+        resource. The values are lists with the extracted jobs. For
+        each job the start time, end time and the user are given.
+    :param start: Start time from which time to generate the plot.
+    :param n_hours: Number of hours to look back in time.
+    :param binwidth: Width of a time bin in hours.
+    """
     lines = []
-    for cube_license, data in licenses.items():
+    for cube_license, data in jobs.items():
         durations = [stop - start for start, stop, _ in data]
         if len(durations) > 0:
             mean_duration = sum(durations, dt.timedelta(0)) / len(durations)
@@ -131,10 +159,20 @@ def generate_figure(licenses, begin, path):
     plt.savefig(path)
 
 
-def main(n_hours, binwidth, figure):
+def main(n_hours: int, binwidth: int, figure: bool = False):
+    """
+    Generate activity plot.
+
+    Plot actvity for each setup over time in a bar plot.
+    Result is printed to the console.
+
+    :param n_hours: Number of hours to look back in time.
+    :param binwidth: Width of a time bin in hours.
+    :param figure: Generate and save figure.
+    """
     start = dt.datetime.now() - dt.timedelta(hours=n_hours)
-    licenses = get_jobs(start)
-    lines = generate_output(licenses, n_hours, start, binwidth)
+    jobs = get_jobs(start)
+    lines = generate_output(jobs, n_hours, start, binwidth)
     print(f"Overview for last {n_hours} hours")
     print(f"  SETUP  JOBS    MEAN DURATION  USAGE  {start:%d. %Hh}"
           f"{' ':{abs(n_hours // binwidth - 12)}}"
@@ -142,7 +180,7 @@ def main(n_hours, binwidth, figure):
     print("\n".join(lines))
 
     if figure:
-        generate_figure(licenses, start, figure)
+        generate_figure(jobs, start, figure)
 
 
 if __name__ == "__main__":
