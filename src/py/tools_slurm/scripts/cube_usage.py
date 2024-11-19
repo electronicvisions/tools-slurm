@@ -23,7 +23,7 @@ def get_jobs(start: dt.datetime
     """
     datefmt = "%Y-%m-%dT%H:%M:%S"
     cmd = ("sacct -a -r cube --start {:%Y-%m-%dT%H:%M:%S} "
-           "--format=start,end,state,alloctres%100,user --parsable2 "
+           "--format=start,end,state,alloctres%100,user,jobid --parsable2 "
            "| grep license")
 
     # pylint: disable=subprocess-run-check
@@ -32,6 +32,14 @@ def get_jobs(start: dt.datetime
     if test.returncode != 0:
         raise RuntimeError("sacct command not found, first load "
                            "slurm-singularity module")
+
+    # get ids of currently running jobs (to later filter out runaway jobs)
+    # Note: we miss classify jobs which started between the call to squeue
+    # and sacct. Since these jobs only ran for a few millisecond, they are
+    # negligible.
+    res_squeue = subprocess.run("squeue --format=%A -h", shell=True,
+                                check=True, capture_output=True, text=True)
+    active_jobs = res_squeue.stdout.splitlines()
 
     result = subprocess.run(cmd.format(start), shell=True, check=True,
                             capture_output=True, text=True)
@@ -48,6 +56,11 @@ def get_jobs(start: dt.datetime
         try:
             end = dt.datetime.strptime(line[1], datefmt)
         except ValueError:
+            # check if job is runaway job
+            jobid = line[5]
+            if jobid not in active_jobs:
+                continue
+            # running job -> end time is now
             end = dt.datetime.now()
 
         job = (start, end, user)
