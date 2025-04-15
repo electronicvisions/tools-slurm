@@ -7,6 +7,7 @@ Show usage of cube setups over given time period.
 from typing import Dict, List, Tuple
 import argparse
 import os
+import re
 import subprocess
 import datetime as dt
 
@@ -21,8 +22,9 @@ def get_jobs(start: dt.datetime
         The values are lists with the extracted jobs. For each job the start
         time, end time and the user are given.
     """
+    # pylint: disable=too-many-locals
     datefmt = "%Y-%m-%dT%H:%M:%S"
-    cmd = ("sacct -a -r cube --start {:%Y-%m-%dT%H:%M:%S} "
+    cmd = ("sacct -a --start {:%Y-%m-%dT%H:%M:%S} "
            "--format=start,end,state,alloctres%100,user,jobid --parsable2 "
            "| grep license")
 
@@ -44,14 +46,14 @@ def get_jobs(start: dt.datetime
     result = subprocess.run(cmd.format(start), shell=True, check=True,
                             capture_output=True, text=True)
 
+    license_re = re.compile(r"license\/(w(?:6\d|7[0-5])f[0,3])=1")
     jobs = {}
     for line in result.stdout.splitlines():
         line = line.split("|")
-        cube_license = line[3].split(",")[2][8:-2]
+        user = line[4]
         state = line[2]
         if state == "PENDING":
             continue
-        user = line[4]
         start = dt.datetime.strptime(line[0], datefmt)
         try:
             end = dt.datetime.strptime(line[1], datefmt)
@@ -62,12 +64,16 @@ def get_jobs(start: dt.datetime
                 continue
             # running job -> end time is now
             end = dt.datetime.now()
-
-        job = (start, end, user)
-        if cube_license not in jobs:
-            jobs[cube_license] = [job]
-        else:
-            jobs[cube_license].append(job)
+        maybe_hwlicenses = [license_re.match(x) for x in line[3].split(",")]
+        for license_match in maybe_hwlicenses:
+            if license_match is None:
+                continue
+            hwlicense = license_match.group(1)
+            job = (start, end, user)
+            if hwlicense not in jobs:
+                jobs[hwlicense] = [job]
+            else:
+                jobs[hwlicense].append(job)
     return jobs
 
 
