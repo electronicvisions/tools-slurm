@@ -10,6 +10,7 @@ import os
 import re
 import subprocess
 import datetime as dt
+import math
 
 
 def get_jobs(start: dt.datetime
@@ -86,7 +87,7 @@ def generate_bars(data, n_hours, begin, binwidth):
     :param binwidth: Width of a time bin in hours.
     :param figure: Generate and save figure.
     """
-    barchars = " ▁▂▃▄▅▆▇█"
+    barchars = " ▁▂▃▄▅▆▇"
     activity = [dt.timedelta(0)] * (n_hours + 1)
     for start, stop, _ in data:
         while True:
@@ -110,7 +111,7 @@ def generate_bars(data, n_hours, begin, binwidth):
     activity = [x / dt.timedelta(hours=1) for x in activity[1:]]
     activity = [sum(activity[i: i + binwidth]) / binwidth
                 for i in range(0, len(activity), binwidth)]
-    bars = [barchars[int(7 * t)] for t in activity]
+    bars = [barchars[math.ceil((len(barchars) - 1) * t)] for t in activity]
     return "│" + "".join(bars) + "│"
 
 
