@@ -12,7 +12,7 @@ try {
 	boolean deploy = env.GERRIT_EVENT_TYPE == "change-merged"
 	conditionalStage(name: "Module Deployment", skip: !deploy) {
 		runOnSlave(label: "frontend") {
-			inSingularity(app: "dev-tools") {
+			inSingularity(app: "dls") {
 				deployModule([name: "tools-slurm", source: "bin/ lib/ repos_log.txt"])
 			}
 		}
